@@ -4,23 +4,31 @@ import os
 
 app = Flask(__name__)
 
-# MongoDB connection (can use Atlas)
+# MongoDB connection (Atlas URI from Render env var)
 MONGO_URI = os.environ.get("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client["nektech_db"]
 collection = db["callers"]
 
-@app.route("/save-caller", methods=["POST"])
+@app.route("/save-caller", methods=["POST", "GET"])
 def save_caller():
-    caller_number = request.form.get("From")  # Exotel sends this field
-    
+    if request.method == "GET":
+        return "GET not allowed here. Use POST only.", 405
+
+    print("Received POST data:", request.form)
+
+    caller_number = request.form.get("From")  # This is the key Exotel should send
+
     if caller_number:
         if not collection.find_one({"number": caller_number}):
             collection.insert_one({"number": caller_number})
+            print(f"Number {caller_number} saved")
             return "Number saved successfully", 200
         else:
+            print(f"Number {caller_number} already exists")
             return "Number already exists", 200
     else:
+        print("Caller number not found in request")
         return "Caller number not found in request", 400
 
 @app.route("/", methods=["GET"])
