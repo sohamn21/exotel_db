@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: nektech-api
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: "python app.py"
+    envVars:
+      - key: MONGO_URI
+        value: mongodb+srv://techno899:Sohamns21@cluster0ex.tbr0kn7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0ex
